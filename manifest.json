@@ -1,34 +1,35 @@
-
 {
-	"manifest_version": 3,
-	"name": "Stop watchin",
-	"description": "Touch some grass, unless you're studing",
-	"version": "0.0.1",
-	"permissions": ["tabs", "scripting", "alarms"],
-	"host_permissions": ["*://*.youtube.com/*"],
-	"background": {
-		"service_worker": "background.js"
-	},
-	"content_scripts": [
-		{
-			"matches": ["*://*.youtube.com/*"],
-			"js": ["scripts/content.js"]
+  "manifest_version": 3,
+  "name": "Stop watchin",
+  "description": "Touch some grass, unless you're studing",
+  "version": "0.0.1",
+  "permissions": ["tabs", "scripting", "alarms", "storage"],
+  "host_permissions": ["*://*.youtube.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.youtube.com/*"],
+      "js": ["scripts/content.js"]
+    }
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "action": {
+    "default_icon": {
+      "19": "images/1.png",
+      "38": "images/1.png"
+    },
+    "default_popup": "popup/popup.html",
+    "default_title": "Stop watching"
+  },
 
-		}
-	],
-
-	"action": {
-		"default_icon": {
-			"19": "images/1.png",
-			"38": "images/1.png"
-		},
-		"default_popup": "popup/popup.html",
-		"default_title": "Stop watching"
-	},
-
-	"icons": {
-		"16": "images/1.png",
-		"48": "images/1.png",
-		"128": "images/1.png"
-	}
-	}
+  "icons": {
+    "16": "images/1.png",
+    "48": "images/1.png",
+    "128": "images/1.png"
+  }
+}

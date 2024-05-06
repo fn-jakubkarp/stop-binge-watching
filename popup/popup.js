@@ -1,33 +1,32 @@
-document.addEventListener('DOMContentLoaded', function() {
-    updateTabList();
-    setInterval(updateTabList, 5000); // Refresh every 5 seconds
+document.addEventListener("DOMContentLoaded", function () {
+  const youtubeTabsList = document.getElementById("youtubeTabs");
+
+  // Function to fetch and display tab information
+  function fetchTabInfo() {
+    chrome.runtime.sendMessage({ action: "getTabInfo" }, function (response) {
+      youtubeTabsList.innerHTML = ""; // Clear the current list
+      response.info.forEach((info) => {
+        const li = document.createElement("li");
+        li.textContent = info;
+        youtubeTabsList.appendChild(li);
+      });
+    });
+  }
+
+  // Update immediately and set up periodic update
+  fetchTabInfo();
+  setInterval(fetchTabInfo, 5999);
 });
 
-function updateTabList() {
-    const tabList = document.getElementById('tabs');
-    tabList.innerHTML = ''; // Clear existing list
+// Handler for settings button
+document.addEventListener("DOMContentLoaded", function () {
+  const settingsBtn = document.getElementById("settingsBtn");
 
-    chrome.runtime.sendMessage({ action: "getTimers" }, (response) => {
-        if (chrome.runtime.lastError) {
-            console.error("Error in communication:", chrome.runtime.lastError);
-            return;
-        }
-        if (!response || !response.tabTimers) {
-            console.error("No data received on timers");
-            return;
-        }
-        Object.entries(response.tabTimers).forEach(([tabId, timer]) => {
-            chrome.tabs.get(parseInt(tabId), (tab) => {
-                if (!tab) {
-                    console.error("No tab found for ID:", tabId);
-                    return;
-                }
-                if (tab.url.includes("youtube.com/watch")) {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `Tab ${tabId}: ${tab.title} - Timer set for 60 minutes`;
-                    tabList.appendChild(listie);
-                }
-            });
-        });
-    });
-}
+  settingsBtn.addEventListener("click", function () {
+    if (chrome.runtime.openOptionsPage) {
+      chrome.runtime.openOptionsPage();
+    } else {
+      window.open(chrome.runtime.getURL("options.html"));
+    }
+  });
+});

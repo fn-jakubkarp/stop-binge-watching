@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Stop watchin",
-  "description": "Touch some grass, unless you're studing",
+  "name": "Stop binge-watching",
+  "description": "Chrome extension for preventing youtube binge-watching",
   "version": "0.0.1",
   "permissions": ["tabs", "scripting", "alarms", "storage"],
   "host_permissions": ["*://*.youtube.com/*"],

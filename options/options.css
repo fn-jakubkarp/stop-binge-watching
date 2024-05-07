@@ -1,0 +1,23 @@
+body {
+  font-family: "Arial", sans-serif;
+  margin: 10px;
+  display: flex;
+  color: #333;
+  background-color: #f9f9f9;
+  font-size: 14px;
+  flex-direction: column;
+  width: 450px;
+  height: 100px;
+  justify-content: center;
+  align-items: center;
+}
+
+#labelCountdown {
+  font-size: 1.25rem;
+}
+
+#wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

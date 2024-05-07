@@ -1,25 +1,30 @@
-// Object to store tab open times with tabId as the key
 let tabCountdown = {};
-const HOUR = 3600;
+const HOUR = 3600; // equals 1 hour
 
-// TODO: Check the errors:: there's a bug that url can't be set to null
+function handleCountdown(tabId, url, title) {
+  chrome.storage.local.get("key", function (data) {
+    const countdownMinutes = parseInt(data.key, 10) || 60; // Default to 60 minutes if undefined
+    const countdownSeconds = countdownMinutes * 60;
 
-// TODO: Refactor to also close the tab itself
-function handleCountdown(tabId) {
-  if (!tabCountdown[tabId]) {
-    tabCountdown[tabId] = {
-      remainingTime: HOUR,
-      intervalId: setInterval(() => {
-        if (tabCountdown[tabId].remainingTime > 0) {
-          tabCountdown[tabId].remainingTime--;
-        } else {
-          clearInterval(tabCountdown[tabId].intervalId);
-          chrome.tabs.remove(tabId);
-          delete tabCountdown[tabId];
-        }
-      }, 1000),
-    };
-  }
+    if (isYouTubeTab(url)) {
+      if (!tabCountdown[tabId]) {
+        tabCountdown[tabId] = {
+          remainingTime: countdownSeconds,
+          intervalId: setInterval(() => {
+            if (tabCountdown[tabId].remainingTime > 0) {
+              tabCountdown[tabId].remainingTime--;
+            } else {
+              clearInterval(tabCountdown[tabId].intervalId);
+              chrome.tabs.remove(tabId);
+              delete tabCountdown[tabId];
+            }
+          }, 1000),
+        };
+      }
+    } else if (isTutorial(title)) {
+      stopCountdown(tabId);
+    }
+  });
 }
 
 function stopCountdown(tabId) {
@@ -29,6 +34,7 @@ function stopCountdown(tabId) {
     console.log(`Countdown stopped for tab ${tabId}`);
   }
 }
+
 function isTutorial(tabTitle) {
   const keywords = ["guide", "tutorial"];
   return keywords.some((keyword) =>
@@ -38,18 +44,17 @@ function isTutorial(tabTitle) {
 
 chrome.tabs.onCreated.addListener((tab) => {
   console.log("Created tab with URL:", tab.url);
-  if (tab.url && isYouTubeTab(tab.url)) {
-    handleCountdown(tab.id);
-  }
+  handleCountdown(tab.id, tab.url, tab.title);
 });
 
 // Update the open time if tab URL changes to a YouTube URL
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.url) {
-    console.log("Updating tab with URL:", changeInfo.url);
-    if (isYouTubeTab(changeInfo.url)) {
-      handleCountdown(tabId);
-    }
+  if (changeInfo.url || changeInfo.title) {
+    handleCountdown(
+      tabId,
+      changeInfo.url || tab.url,
+      changeInfo.title || tab.title,
+    );
   }
 });
 
@@ -80,7 +85,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 function isYouTubeTab(url) {
-  if (!url || typeof url !== "string") {
+  if (!url || typeof url !== "string" || null) {
     console.error("Invalid or empty URL passed to isYouTubeTab:", url);
     return false;
   }

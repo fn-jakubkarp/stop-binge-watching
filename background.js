@@ -2,6 +2,8 @@
 let tabCountdown = {};
 const HOUR = 3600;
 
+// TODO: Check the errors:: there's a bug that url can't be set to null
+
 // TODO: Refactor to also close the tab itself
 function handleCountdown(tabId) {
   if (!tabCountdown[tabId]) {
@@ -20,6 +22,27 @@ function handleCountdown(tabId) {
   }
 }
 
+function stopCountdown(tabId) {
+  if (tabCountdown[tabId]) {
+    clearInterval(tabCountdown[tabId].intervalId);
+    delete tabCountdown[tabId];
+    console.log(`Countdown stopped for tab ${tabId}`);
+  }
+}
+function isTutorial(tabTitle) {
+  const keywords = ["guide", "tutorial"];
+  return keywords.some((keyword) =>
+    tabTitle.toLowerCase().includes(keyword.toLowerCase()),
+  );
+}
+
+chrome.tabs.onCreated.addListener((tab) => {
+  console.log("Created tab with URL:", tab.url);
+  if (tab.url && isYouTubeTab(tab.url)) {
+    handleCountdown(tab.id);
+  }
+});
+
 // Update the open time if tab URL changes to a YouTube URL
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.url) {
@@ -27,13 +50,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (isYouTubeTab(changeInfo.url)) {
       handleCountdown(tabId);
     }
-  }
-});
-
-chrome.tabs.onCreated.addListener((tab) => {
-  console.log("Created tab with URL:", tab.url);
-  if (tab.url && isYouTubeTab(tab.url)) {
-    handleCountdown(tab.id);
   }
 });
 

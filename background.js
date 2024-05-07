@@ -31,6 +31,7 @@ function stopCountdown(tabId) {
   if (tabCountdown[tabId]) {
     clearInterval(tabCountdown[tabId].intervalId);
     delete tabCountdown[tabId];
+    chrome.runtime.sendMessage({ action: "countdownStopped", tabId: tabId });
     console.log(`Countdown stopped for tab ${tabId}`);
   }
 }
@@ -66,12 +67,33 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
 });
 
 // Message listener for popup requests
+// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+//   if (message.action === "getTabInfo") {
+//     chrome.tabs.query({ url: "*://*.youtube.com/*" }, (tabs) => {
+//       const filteredTabs = tabs.filter(
+//         (tab) => tab.url.includes("/watch") || tab.url.includes("/shorts"),
+//       );
+//       const info = filteredTabs.map((tab) => {
+//         const timeRemaining = tabCountdown[tab.id]
+//           ? Math.floor(tabCountdown[tab.id].remainingTime / 60) + " minutes"
+//           : "Timer expired";
+//         return `${timeRemaining} | ${tab.title}`;
+//       });
+//       sendResponse({ info: info });
+//     });
+//     return true;
+//   }
+// });
+// Message listener for popup requests
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "getTabInfo") {
     chrome.tabs.query({ url: "*://*.youtube.com/*" }, (tabs) => {
-      const filteredTabs = tabs.filter(
-        (tab) => tab.url.includes("/watch") || tab.url.includes("/shorts"),
-      );
+      const filteredTabs = tabs.filter((tab) => {
+        const isWatchOrShorts =
+          tab.url.includes("/watch") || tab.url.includes("/shorts");
+        return isWatchOrShorts && !isTutorial(tab.title); // Exclude tutorials
+      });
+
       const info = filteredTabs.map((tab) => {
         const timeRemaining = tabCountdown[tab.id]
           ? Math.floor(tabCountdown[tab.id].remainingTime / 60) + " minutes"

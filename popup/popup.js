@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Function to fetch and display tab information
   function fetchTabInfo() {
     chrome.runtime.sendMessage({ action: "getTabInfo" }, function (response) {
-      youtubeTabsList.innerHTML = "Empty"; // Clear the current list
+      youtubeTabsList.innerHTML = ""; // Clear the current list
       response.info.forEach((info) => {
         const li = document.createElement("li");
         li.textContent = info;
